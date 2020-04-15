@@ -1,0 +1,3 @@
+C:/Users/ardai/Desktop/2deneme/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+C:/Users/ardai/Desktop/2deneme/cmake-build-debug/CMakeFiles/2deneme.dir
+C:/Users/ardai/Desktop/2deneme/cmake-build-debug/CMakeFiles/edit_cache.dir
