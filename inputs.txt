@@ -1,0 +1,32 @@
+search terrible -c > beng.txt pigs.txt
+search terrible > beng.txt pigs.txt
+search terrible -c pigs.txt
+search terrible pigs.txt
+
+replace terrible arda -c > beng.txt pigs.txt
+replace terrible arda > beng.txt pigs.txt
+replace terrible arda -c pigs.txt
+replace terrible arda pigs.txt
+
+insert arda -c -a terrible > beng.txt pigs.txt
+insert arda -c -b terrible > beng.txt pigs.txt
+insert arda -c -a terrible pigs.txt
+insert arda -c -b terrible pigs.txt
+insert arda -a terrible > beng.txt pigs.txt
+insert arda -b terrible > beng.txt pigs.txt
+insert arda -a terrible pigs.txt
+insert arda -b terrible pigs.txt
+
+lineCount > beng.txt pigs.txt
+lineCount pigs.txt
+
+head 2 > beng.txt pigs.txt
+head 2 pigs.txt
+
+tail 2 > beng.txt pigs.txt
+tail 2 pigs.txt
+
+mid 2 4 > beng.txt pigs.txt
+mid 2 4 pigs.txt
+
+mid 2 4 > beng.txt : insert arda -c -a terrible > beng2.txt : search terrible -c pigs.txt
