@@ -4,9 +4,25 @@
 #define FALSE    0
 #define TRUE    1
 
-int Search_in_File(char *str,char *fname,int numberofWords) {
+struct InpStruct {
+    char *Fonksiyon;
+    char *Degistirilecek;
+    char *Aranicak;
+    char *BeforeAfter;
+    int   print;
+    char *outFile;
+    char *inputFile;
+    int counterOrNot;
+    int input_number;
+    int start;
+    int end;
+    int correct_or_not;
+};
+
+int Search_in_File(char *str,char *fname,int cOrNot,char *outFile,int print) {
 
     FILE *fp;
+    FILE *fOut;
     int line_num = 1;
     int find_result = 0;
     char temp[512];
@@ -16,31 +32,52 @@ int Search_in_File(char *str,char *fname,int numberofWords) {
         printf("A command with wrong input file specified.");
         return(-1);
     }
+    if(!print){
+        fOut = fopen(outFile, "w");
+    }
 
 
     while(fgets(temp, 512, fp) != NULL) {
         if((strstr(temp, str)) != NULL) {
             // printf("A match found on line: %d\n", line_num);
-            printf("\n%s\n", temp);
+            if(print){
+                printf("\n%s\n", temp);
+            } else{
+             //file a yaz
+                fprintf(fOut,"\n%s\n",temp);
+            }
             find_result++;
         }
         line_num++;
     }
 
     if(find_result == 0) {
-        printf("\nSorry, couldn't find a match.\n");
+        if(print){
+            printf("\nSorry, couldn't find a match.\n");
+        } else{
+            fputs("\nSorry, couldn't find a match.\n", fOut);
+        }
     }
-    if(numberofWords == 4){
-        printf("%s has been found %d times",str,find_result);
+    if(cOrNot){
+        if(print){
+            printf("%s has been found %d times",str,find_result);
+        } else{
+            //file a yaz
+            fprintf(fOut, "%s has been found %d times.", str,find_result);
+        }
+
     }
     //Close the file if still open.
     if(fp) {
         fclose(fp);
     }
+    if(fOut){
+        fclose(fOut);
+    }
     return(0);
 }
 int countWords(char *str)
-{//insert amcik -a arda file3.txt
+{
     int state = FALSE;
     unsigned wc = 0;  // word count
 
@@ -64,11 +101,11 @@ int countWords(char *str)
 
     return wc;
 }
-int replaceAll(const char *oldWord, const char *newWord,char *fname,int numberofWords)
+int replaceAll(const char *oldWord, const char *newWord,char *fname,int cOrNot,char *outFile,int print)
 {
 
     FILE * fp;
-    FILE * fTemp;
+    FILE * fOut;
     char buffer[512];
     char *pos, temp[512];
     int index = 0;
@@ -79,9 +116,12 @@ int replaceAll(const char *oldWord, const char *newWord,char *fname,int numberof
 
     /*  Open all required files */
     fp  = fopen(fname, "r");
-    fTemp = fopen("replace.tmp", "w");
+    if(!print){
+        fOut = fopen(outFile, "w");
+    }
 
-    if (fp == NULL || fTemp == NULL)
+
+    if (fp == NULL )
     {
         /* Unable to open file hence exit */
         printf("\nUnable to open file.\n");
@@ -120,17 +160,26 @@ int replaceAll(const char *oldWord, const char *newWord,char *fname,int numberof
         }
 
         // After replacing write it to temp file.
-        fputs(buffer, fTemp);
+        if(print){
+            printf("%s",buffer);
+        }else{
+            fputs(buffer, fOut);
+        }
+
     }
 
 
     /* Close all files to release resource */
     fclose(fp);
-    fclose(fTemp);
-    remove(fname);
-    rename("replace.tmp", fname);
-    if(numberofWords==5){
-        printf("\nNumber of changed words: %d",count);
+    fclose(fOut);
+
+    if(cOrNot){
+        if(print){
+            printf("\nNumber of changed words: %d",count);
+        }else{
+            fprintf(fOut,"\nNumber of changed words: %d",count );
+        }
+
     }
 
 
@@ -159,29 +208,50 @@ int lineCount(char *fname){
     }
     return(count);
 }
-int split(int splitNum,char *fname){
+int split(int splitNum,char *fname,char *outFile,int print){
     FILE *fp;
+    FILE *fOut;
     char temp[512];
     if((fp = fopen(fname, "r")) == NULL) {
         printf("A command with wrong input file specified.");
         return(-1);
     }
+    if(!print){
+        fOut = fopen(outFile, "w");
+    }
     while ((fgets(temp,1000, fp)) != NULL)
     {
         for (int i = 0; i< strlen(temp); i++)
         {
-            if ((i % splitNum)== 0)
-                printf("\n");
-            printf("%c", temp[i]);
+            if ((i % splitNum)== 0){
+                if(print){
+                    printf("\n");
+                }
+                else{
+                    fputs("\n",fOut);
+                }
+
+            }
+            if(print){
+                printf("%c", temp[i]);
+            }
+            else{
+                fprintf(fOut,"%c",temp[i]);
+            }
+
         }
     }
     if(fp) {
         fclose(fp);
     }
+    if(fOut){
+        fclose(fOut);
+    }
     return(0);
 }
-int headTailMid(char type,int start,int end, char *fname){
+int headTailMid(char *type,int start,int end, char *fname,char *outFile,int print){
     FILE *fp;
+    FILE *fOut;
     int lCount = lineCount(fname);
     char temp[512];
     int current =1;
@@ -190,16 +260,25 @@ int headTailMid(char type,int start,int end, char *fname){
         printf("A command with wrong input file specified.");
         return(-1);
     }
-    if(type=='t'){
+    if(!print){
+        fOut = fopen(outFile, "w");
+    }
+    if(strcmp(type,"tail")==0){
 
         if(lCount>=end){
 
             while ((fgets(temp,1000, fp)) != NULL)
             {
-                    if(current >lCount-end){
+                if(current >lCount-end){
+                    if(print){
                         printf("%s", temp);
                     }
-                    current +=1;
+                    else{
+                        fputs(temp,fOut);
+                    }
+
+                }
+                current +=1;
             }
 
         } else{
@@ -207,11 +286,16 @@ int headTailMid(char type,int start,int end, char *fname){
         }
 
     }
-    else if(type=='h'){
+    else if(strcmp(type,"head")==0){
         if(lCount>=end) {
             for (int i = 0; i < end; i++) {
                 (fgets(temp, 1000, fp));
-                printf("%s", temp);
+                if(print){
+                    printf("%s", temp);
+                }
+                else{
+                    fputs(temp,fOut);
+                }
             }
         }
         else{
@@ -224,7 +308,12 @@ int headTailMid(char type,int start,int end, char *fname){
             while ((fgets(temp,1000, fp)) != NULL)
             {
                 if(current >=start&&current<=end){
-                    printf("%s", temp);
+                    if(print){
+                        printf("%s", temp);
+                    }
+                    else{
+                        fputs(temp,fOut);
+                    }
                 }
                 current +=1;
             }
@@ -237,26 +326,31 @@ int headTailMid(char type,int start,int end, char *fname){
     if(fp) {
         fclose(fp);
     }
+    if(fOut){
+        fclose(fOut);
+    }
     return(0);
 }
-int insert(const char *insertedWord, int keyCount,const char *afterBefore,const char *targetKeyword,char *fname)
+int insert(const char *insertedWord, int keyCount,const char *afterBefore,const char *targetKeyword,char *fname,char *outFile,int print)
 {//<insertedkeyword> [-c] <-a OR -b> <targetkeyword> <inFile>
 
     FILE * fp;
-    FILE * fTemp;
+    FILE * fOut;
     char buffer[512];
-    char *pos, temp[512],orgin[512];
+    char *pos, temp[512];
+
     int index = 0;
-    int tlen = strlen(targetKeyword);
     int ilen = strlen(insertedWord);
     int count =0;
 
     /*  Open all required files */
     fp  = fopen(fname, "r");
-    //BURAYI >o da yapcam
-    //fTemp = fopen("replace.tmp", "w");
 
-    if (fp == NULL /*|| fTemp == NULL*/)
+    if(!print){
+        fOut = fopen(outFile, "w");
+    }
+
+    if (fp == NULL )
     {
         /* Unable to open file hence exit */
         printf("\nUnable to open file.\n");
@@ -271,11 +365,11 @@ int insert(const char *insertedWord, int keyCount,const char *afterBefore,const 
 
     while ((fgets(buffer,1000, fp)) != NULL)
     {
-
+        char orgin[512] ="";
         // Replace all occurrence of word from current line
         while ((pos = strstr(buffer, targetKeyword)) != NULL)
         {
-
+            int i = 0;
             // Bakup current line
             strcpy(temp, buffer);
 
@@ -295,72 +389,126 @@ int insert(const char *insertedWord, int keyCount,const char *afterBefore,const 
                 strcat(buffer, targetKeyword);
             }
             // Concatenate str with new word
-
-
-
             // Concatenate str with remaining words after
             // oldword found index.
-            if(strcmp(afterBefore,"-a")==0){
-                strcat(buffer, temp + index + ilen-1);
+            strcat(orgin,buffer);
+            while(buffer[i]!='\0'){
+                buffer[i]='\0';
+                i++;
             }
-            else if(strcmp(afterBefore,"-b")==0){
-                strcat(buffer, temp + index + ilen-1);
-            }
-
+            strcat(buffer, temp + index + ilen-1);
             count++;
         }
-
+        strcat(orgin,buffer);
         // After replacing write it to temp file.
         //burada o functionunda olcak
-        printf("%s",buffer);
-       // fputs(buffer, fTemp);
+        if(print){
+            printf("%s",orgin);
+        }else{
+            fputs(orgin,fOut);
+        }
+
+
+        // fputs(buffer, fTemp);
     }
 
-
+    if(keyCount){
+        if(print){
+            printf("\nNumber of changed words: %d",count);
+        }
+        else{
+            fprintf(fOut,"\nNumber of changed words: %d",count);
+        }
+    }
     /* Close all files to release resource */
     fclose(fp);
-  //  fclose(fTemp);
-  //  remove(fname);
-  //  rename("replace.tmp", fname);
-    if(keyCount){
-        printf("\nNumber of changed words: %d",count);
+    if(fOut){
+        fclose(fOut);
     }
+    return 0;
+}
 
+void funcCall(struct InpStruct *cmd){
+    if(cmd->correct_or_not==0){
+        printf("Wrong command!\n");
+    }else if(strcmp(cmd->Fonksiyon,"search")==0){
+        Search_in_File(cmd->Aranicak,cmd->inputFile,cmd->counterOrNot,cmd->outFile,cmd->print);
+        //search çağır
+    }else if(strcmp(cmd->Fonksiyon,"replace")==0){
+        replaceAll(cmd->Aranicak,cmd->Degistirilecek,cmd->inputFile,cmd->counterOrNot,cmd->outFile,cmd->print);
+    }else if(strcmp(cmd->Fonksiyon,"insert")==0){
+        insert(cmd->Degistirilecek,cmd->counterOrNot,cmd->BeforeAfter,cmd->Aranicak,cmd->inputFile,cmd->outFile,cmd->print);
+    }else if(strcmp(cmd->Fonksiyon,"lineCount")==0){
+        lineCount(cmd->inputFile);
+    }else if(strcmp(cmd->Fonksiyon,"split")==0){
+        split(cmd->input_number,cmd->inputFile,cmd->outFile,cmd->print);
+    }else if(strcmp(cmd->Fonksiyon,"head")==0){
+        headTailMid(cmd->Fonksiyon,cmd->start,cmd->end,cmd->inputFile,cmd->outFile,cmd->print);
+    }else if(strcmp(cmd->Fonksiyon,"tail")==0){
+        headTailMid(cmd->Fonksiyon,cmd->start,cmd->end,cmd->inputFile,cmd->outFile,cmd->print);
+    }else if(strcmp(cmd->Fonksiyon,"mid")==0){
+        headTailMid(cmd->Fonksiyon,cmd->start,cmd->end,cmd->inputFile,cmd->outFile,cmd->print);
+    }else{}
+}
+void nonThread(char *func,char*file){
 
-    /*
-     * Repeat till all occurrences are replaced.
-     */
+}
+void threaded(){
 
 }
 int main() {
     int nw;
+    int i = 0;
+    char *split_input[50];
+    struct InpStruct *cmd;
+    char string[512] = "insert amcik -c -b arda file3.txt";
+    //gets(string);
 
-    char *method, param1[32], param2[32], param3[32], param4[32], param5[32], param6[32];
-
-    char string[50] = "insert amcik -a arda file3.txt";
-
+    for (int j = 0; i < 20; i++) {
+        split_input[j] = (char *)malloc(100* sizeof(char));
+    }
     nw = countWords(string);
-
     printf("number of words %d\n", nw);
-    method = strtok(string, " ");//method
+    split_input[i++] = strtok(string, " ");//method
 
 
-    if (method != NULL) {
-        if (strcmp(method, "search") == 0) {
-
+    if (split_input[0] != NULL) {
+        if (strcmp(split_input[0], "search") == 0) {
+            cmd->Fonksiyon ="search";
+            if(strstr(string,"-c")){//count varsa
+                cmd->counterOrNot =1;
+                if(strstr(string,">")){//out varsa
+                    cmd->print =0;
+                }
+                else{
+                   // search terrible -c pigs.txt
+                }
+            }
+            else{//count yoksa
+                if(strstr(string,">")){//out varsa
+                    cmd->print =0;
+                }
+                else{//out ve count yoksa
+                    if(nw==3){
+                        funcCall(cmd);
+                    }
+                    //search terrible file3.txt
+                }
+            }
+/*
             if (nw == 3) {
                 Search_in_File(strtok(NULL, " "), strtok(NULL, " "), nw);
             } else if (nw == 4) {
-                strcpy(param1, strtok(NULL, " "));
-                strcpy(param2, strtok(NULL, " "));
-                strcpy(param3, strtok(NULL, " "));
+                strcpy(split_input[i++], strtok(NULL, " "));
+                strcpy(split_input[i++], strtok(NULL, " "));
+                strcpy(split_input[i++], strtok(NULL, " "));
                 Search_in_File(param1, param3, nw);
             } else {
                 printf("An incorrect number of command line arguments to your program.");
                 return (-1);
-            }
+            }*/
         }
-        else if (strcmp(method, "replace") == 0) {
+        else if (strcmp(split_input[0], "replace") == 0) {
 
             if (nw == 4) {
                 strcpy(param1, strtok(NULL, " "));
@@ -378,7 +526,7 @@ int main() {
                 return (-1);
             }
         }
-        else if (strcmp(method, "insert") == 0) {//<insertedkeyword> [-c] <-a OR -b> <targetkeyword> <inFile>
+        else if (strcmp(split_input[0], "insert") == 0) {//<insertedkeyword> [-c] <-a OR -b> <targetkeyword> <inFile>
             if (nw == 5) {
                 strcpy(param1, strtok(NULL, " "));//insertedkeyword
                 strcpy(param2, strtok(NULL, " "));//a or b
@@ -398,26 +546,26 @@ int main() {
                 return (-1);
             }
         }
-        else if (strcmp(method, "lineCount") == 0) {
-        strcpy(param1, strtok(NULL, " "));
-        printf("There are %d lines in the file.",lineCount(param1));
+        else if (strcmp(split_input[0], "lineCount") == 0) {
+            strcpy(param1, strtok(NULL, " "));
+            printf("There are %d lines in the file.",lineCount(param1));
         }
-        else if (strcmp(method, "split") == 0) {
+        else if (strcmp(split_input[0], "split") == 0) {
             strcpy(param1, strtok(NULL, " "));
             strcpy(param2, strtok(NULL, " "));
             split(atoi(param1),param2);
         }
-        else if (strcmp(method, "head") == 0) {
+        else if (strcmp(split_input[0], "head") == 0) {
             strcpy(param1, strtok(NULL, " "));
             strcpy(param2, strtok(NULL, " "));
             headTailMid('h',1,atoi(param1),param2);
         }
-        else if (strcmp(method, "tail") == 0) {
+        else if (strcmp(split_input[0], "tail") == 0) {
             strcpy(param1, strtok(NULL, " "));
             strcpy(param2, strtok(NULL, " "));
             headTailMid('t',-1,atoi(param1),param2);
         }
-        else if (strcmp(method, "mid") == 0) {
+        else if (strcmp(split_input[0], "mid") == 0) {
             strcpy(param1, strtok(NULL, " "));
             strcpy(param2, strtok(NULL, " "));
             strcpy(param3, strtok(NULL, " "));
@@ -428,10 +576,10 @@ int main() {
         }
     }
 
-else{
-            printf("Empty command!");
-            exit(0);
-        }
+    else{
+        printf("Empty command!");
+        exit(0);
+    }
 
 //    if(argc < 3 || argc > 3) {
 //        Usage(argv[0]);
@@ -440,7 +588,4 @@ else{
     //Use system("cls") on windows
     //Use system("clear") on Unix/Linux
 //    system("cls");
-
-
 }
-
