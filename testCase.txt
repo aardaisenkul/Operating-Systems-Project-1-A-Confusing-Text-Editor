@@ -1,0 +1,29 @@
+search komik -c > temp.txt file3.txt
+replace komik fancy file3.txt
+insert love -b and file3.txt
+insert crazy -a science file3.txt
+lineCount file3.txt
+head 3 file3.txt
+mid 3 5 file3.txt
+tail 3 file3.txt
+head 2 > temp.txt file3.txt
+
+
+search is -c > temp.txt file3.txt
+replace differ axe -c > temp.txt file3.txt
+insert sword -c -b differ file3.txt
+insert melee -c -a is file3.txt
+
+search differ > out.txt file3.txt
+replace uniform realize > out.txt file3.txt
+insert real -b grammar > out.txt file3.txt
+insert lorem -a grammer > out.txt file3.txt
+insert crazy -a science file3.txt
+mid 3 5 > out.txt file3.txt
+tail 3 > out.txt file3.txt
+
+tail 2 > temp.txt : insert arda -c -a uniform > temp2.txt : search terrible -c file3.txt
+search arda -c > out.txt ; replace arda ayse > out2.txt ; insert kemal -c -b common file3.txt
+
+mid 2 4 ; search common -c ; insert kebab -c -a is : replace common arda file3.txt
+
